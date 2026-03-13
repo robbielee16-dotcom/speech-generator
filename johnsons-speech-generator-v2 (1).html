@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Johnsons Coach Departure Speech Generator (v2)</title>
+<style>
+  :root{ --brand:#005eb8; --accent:#ffc20e; --ink:#222; --muted:#666; --bg:#f7f9fc; --card:#fff; }
+  html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:linear-gradient(120deg,var(--brand),#023a73);color:#fff;padding:24px}
+  header h1{margin:0;font-size:1.6rem}
+  header p{margin:.25rem 0 0;color:#e6f0ff}
+  main{max-width:1100px;margin:24px auto;padding:0 16px}
+  .panel{background:var(--card);border:1px solid #e7eef8;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.05);padding:16px;margin:12px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  label{display:block;font-weight:600;margin:.25rem 0 .35rem}
+  select,input[type="text"],input[type="number"]{width:100%;padding:10px;border:1px solid #d7deea;border-radius:8px;background:#fff;font-size:14px}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .row > *{flex:1 1 220px}
+  .muted{color:var(--muted);font-size:.9rem}
+  .btn{appearance:none;background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:10px;font-weight:700;cursor:pointer}
+  .btn.secondary{background:#e9eef6;color:#0b2a4a}
+  .btn.ghost{background:transparent;border:1px solid #cfd8ea;color:#0b2a4a}
+  .tone-chip{display:inline-block;border:1px solid #cfd8ea;border-radius:999px;padding:6px 10px;margin:4px 6px 0 0;cursor:pointer}
+  .tone-chip.active{background:var(--accent);border-color:#d1a300}
+  .speeches{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+  .speech{background:#fff;border:1px solid #e7eef8;border-radius:12px;padding:12px;display:flex;flex-direction:column}
+  .speech pre{white-space:pre-wrap;word-wrap:break-word;font-family:ui-monospace,Menlo,Consolas,monospace;background:#fbfcfe;border:1px dashed #e4ebf7;border-radius:8px;padding:10px;min-height:160px}
+  .speech .actions{margin-top:8px;display:flex;gap:8px}
+</style>
+</head>
+<body>
+  <header>
+    <h1>Johnsons Coach Departure Speech Generator (v2)</h1>
+    <p>Warm, funny welcome messages in seconds. Built for Robbie (Product Manager).</p>
+  </header>
+  <main>
+    <section class="panel">
+      <div class="grid">
+        <div>
+          <label for="destination">Destination</label>
+          <select id="destination"><option>Loading…</option></select>
+          <div class="muted" id="nicknameHint"></div>
+        </div>
+        <div>
+          <label for="driver">Driver name</label>
+          <input id="driver" type="text" placeholder="e.g., Chris" />
+        </div>
+        <div>
+          <label for="courier">Courier name</label>
+          <input id="courier" type="text" placeholder="e.g., Sarah" />
+        </div>
+        <div>
+          <label for="count">How many options?</label>
+          <input id="count" type="number" min="1" max="10" value="6" />
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <label>Tone</label>
+        <div id="tones"></div>
+      </div>
+
+      <div class="row" style="margin-top:6px">
+        <div>
+          <label for="custom">Optional extra line</label>
+          <input id="custom" type="text" placeholder="Any special note for this group…" />
+        </div>
+        <div>
+          <label for="factsCount">Facts per speech</label>
+          <select id="factsCount"><option>1</option><option>2</option><option selected>3</option></select>
+        </div>
+        <div>
+          <label for="includeRole">Include my role line</label>
+          <select id="includeRole"><option value="yes" selected>Yes</option><option value="no">No</option></select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="row">
+        <button class="btn" id="generate">Generate Speeches</button>
+        <button class="btn secondary" id="shuffle">Shuffle Facts Only</button>
+        <button class="btn ghost" id="printAll">Print/Save All</button>
+      </div>
+      <p class="muted">If the destination list is blank, open this file in Firefox, Edge or Safari (some Chrome setups block local scripts).</p>
+    </section>
+
+    <section class="panel">
+      <h3 style="margin:4px 0 12px">Your Speeches</h3>
+      <div class="speeches" id="speeches"></div>
+      <div class="muted" style="margin-top:8px">© Johnsons Coaches — internal tool</div>
+    </section>
+  </main>
+
+<script>
+// Data & logic in one file so it runs anywhere as a local file.
+const DESTINATIONS = {"Llandudno":{"nickname":"Queen of the Welsh Resorts","facts":["The Great Orme Tramway is the UK's only cable‑hauled street tramway.","Wild Kashmiri goats made headlines roaming the town during lockdown.","The Victorian pier is the longest in Wales at over 2,200 feet.","Parts of Alice in Wonderland are said to be inspired by links to the Liddell family who holidayed here."]},"Snowdonia":{"nickname":"Mountains, steam trains and mighty views","facts":["It's home to the fastest zip line in the world at Penrhyn Quarry.","You can reach Yr Wyddfa (Snowdon) summit by mountain railway.","The National Park covers over 800 square miles."]},"Tenby":{"nickname":"Pastel‑perfect harbour town","facts":["The colourful harbour cottages helped sailors spot home from sea.","One of the best‑preserved medieval town walls in Wales.","Caldey Island nearby has been a monastic site for over 1,000 years."]},"Gower Peninsula":{"nickname":"Britain's first AONB","facts":["Designated the UK's first Area of Outstanding Natural Beauty in 1956.","Rhossili Bay is regularly voted among the world's best beaches.","Worm's Head is a tidal island you can walk to at low tide."]},"Bournemouth":{"nickname":"Miles of sand & sunshine","facts":["Britain's first official beach hut was rented here in 1908.","Enjoys some of the highest sunshine hours in the UK.","Seven miles of golden beaches connect multiple resorts."]},"Eastbourne":{"nickname":"Sunniest place in the UK","facts":["Beachy Head is the highest chalk sea cliff in Britain.","Its 19th‑century seafront is famously unspoilt by neon signage.","The pier opened in 1872 and still hosts traditional seaside fun."]},"Isle of Wight":{"nickname":"The Diamond Isle","facts":["Queen Victoria's beloved Osborne House is here.","You can arrive by hovercraft — still a scheduled service!","The Needles are iconic chalk stacks at the island's western tip."]},"Kent":{"nickname":"The Garden of England","facts":["Famous for hops, orchards and vineyards.","Canterbury Cathedral has welcomed pilgrims for centuries.","The White Cliffs of Dover are a symbol of Britain."]},"Torquay":{"nickname":"The English Riviera","facts":["Birthplace of crime writer Agatha Christie.","Palm‑lined promenades give it a Riviera feel.","Nearby Babbacombe has one of Britain's steepest cliff railways."]},"Sidmouth":{"nickname":"Regency seaside gem","facts":["Part of the UNESCO Jurassic Coast World Heritage Site.","The Donkey Sanctuary nearby cares for thousands of animals.","Elegant Regency architecture lines the esplanade."]},"Falmouth":{"nickname":"Deep‑water harbour & Cornish charm","facts":["One of the world's deepest natural harbours.","Pendennis Castle guarded the Fal Estuary since Henry VIII.","A great base for boat trips to St Mawes and the Roseland."]},"Carlyon Bay":{"nickname":"Clifftop Cornish vistas","facts":["Sits on Cornwall's dramatic south coast near St Austell.","Close to the Eden Project's giant biomes.","Known for sweeping beaches and coastal walks."]},"Norfolk":{"nickname":"Big skies & Broads","facts":["The Norfolk Broads were formed by medieval peat digging.","Norfolk has more churches per square mile than anywhere in Europe.","Traditional windpumps still dot the landscape."]},"Sussex":{"nickname":"Castles, coast & gardens","facts":["Arundel Castle overlooks the River Arun.","The South Downs are England's newest National Park.","Historic houses and gardens abound across the county."]},"Bath":{"nickname":"Golden‑stoned elegance","facts":["The Roman Baths date back nearly 2,000 years.","The Royal Crescent is a masterpiece of Georgian architecture.","Bath stone gives the whole city its warm honey hue."]},"Lake District":{"nickname":"Peaks, lakes & poets","facts":["Wastwater is England's deepest lake; Scafell Pike is the highest peak.","Inspired Wordsworth and Beatrix Potter.","There are sixteen major lakes — and countless tarns."]},"Liverpool":{"nickname":"Music city","facts":["Birthplace of The Beatles and home of the Cavern Club.","The waterfront 'Three Graces' define the skyline.","Scousers are famously friendly — you’ll see why."]},"Isle of Man":{"nickname":"Small island, big character","facts":["Tynwald claims to be the world's oldest continuous parliament.","Manx cats are known for their little or no tails.","Heritage railways include steam, electric and mountain lines."]},"Yorkshire":{"nickname":"God's Own County","facts":["The Dales and Moors offer two very different wild landscapes.","York Minster is among the largest Gothic cathedrals in Northern Europe.","You can't leave without trying a mighty Yorkshire pudding."]},"Northumbria":{"nickname":"Castles & coastlines","facts":["Hadrian's Wall spans 73 miles coast‑to‑coast.","Lindisfarne (Holy Island) is reached by tidal causeway.","Bamburgh Castle once led the way in cannon warfare."]},"Scarborough":{"nickname":"Britain's first seaside resort","facts":["A spa town since the 17th century.","Has two beautiful bays separated by a headland castle.","Inspired the folk ballad 'Scarborough Fair'."]},"Durham":{"nickname":"Cathedral city on the Wear","facts":["Durham Cathedral and Castle form a UNESCO World Heritage Site.","Winding medieval streets drop to the river below.","Nearby Beamish brings living history to life."]},"Edinburgh":{"nickname":"Castle on a volcano","facts":["Edinburgh Castle sits atop an extinct volcano.","The Fringe is the world's largest arts festival.","Victorian closes hide beneath today's streets at Mary King's Close."]},"The Trossachs":{"nickname":"Highlands in miniature","facts":["Loch Katrine inspired Sir Walter Scott's poetry.","A classic landscape of lochs, forests and bens.","Gateway between the Lowlands and the Highlands."]},"Fort William":{"nickname":"Outdoor capital of the UK","facts":["Close to Ben Nevis, the UK's highest mountain.","The Jacobite steam train crosses the Glenfinnan Viaduct.","Loch Linnhe brings sea views to a Highland town."]},"Stirling":{"nickname":"Key to the Highlands","facts":["Stirling Bridge was the site of William Wallace's famous victory.","The castle crowns a steep, volcanic crag.","The National Wallace Monument overlooks the city."]},"Jersey":{"nickname":"Sunniest spot in the British Isles","facts":["Jersey cows produce famously rich milk.","WWII tunnels remain from the German occupation.","Golden bays like St Brelade's are postcard‑perfect."]},"Guernsey":{"nickname":"Victor Hugo's island","facts":["Victor Hugo wrote part of Les Misérables while exiled here.","The whole island was occupied during WWII.","Herm and Sark are easy day trips with no cars."]},"Herm":{"nickname":"Car‑free island escape","facts":["No cars — just beaches and footpaths.","Population is around a few dozen residents.","Shell Beach is famed for its tiny, colourful shells."]},"Killarney":{"nickname":"Lakes & legends","facts":["Ireland's oldest National Park surrounds the lakes.","Muckross House hosted Queen Victoria in 1861.","Jaunting cars (horse‑drawn) are still a classic way to tour."]},"Ring of Kerry":{"nickname":"Ireland's grand scenic loop","facts":["Skellig Michael starred in Star Wars.","Panoramas swing from mountains to Atlantic bays.","Villages like Sneem and Waterville ooze character."]},"Belfast":{"nickname":"Shipbuilding & stories","facts":["The Titanic was built here — the slipways remain.","Political murals chronicle recent history.","The Cathedral Quarter buzzes with live music."]},"County Clare":{"nickname":"Cliffs & karst","facts":["The Cliffs of Moher tower 200m over the Atlantic.","The Burren's limestone pavement is other‑worldly.","Traditional music thrives in towns like Doolin."]},"Austrian Alps":{"nickname":"Peaks, pastures & punsch","facts":["Austria is Mozart's birthplace and waltz country.","Alpine railways climb staggering gradients.","Lakes like Wolfgangsee are crystal‑clear."]},"Norwegian Fjords":{"nickname":"Waterfalls & wow‑views","facts":["Some fjords plunge over a thousand metres deep.","The Flam Railway is among the steepest in the world.","Waterfalls like Seven Sisters thunder into Geirangerfjord."]},"Holland Bulbfields":{"nickname":"Stripes of spring colour","facts":["Keukenhof plants around 7 million bulbs each year.","Polder landscapes sit below sea level.","Windmills at Kinderdijk are UNESCO‑listed."]},"Rhine Valley":{"nickname":"Castles above, vineyards below","facts":["The Lorelei rock is steeped in legend.","Riverboats glide past medieval castles.","Riesling vines cling to terraced slopes."]}};
+
+const TONES = {"Warm":{"openings":["Good morning everyone! I’m Robbie, the Product Manager here at Johnsons Coaches — it’s lovely to see you.","Hello folks! Robbie here — Product Manager at Johnsons — great to have you onboard today.","A very warm welcome! I’m Robbie, Johnsons’ Product Manager, and I just wanted to wish you a brilliant break."],"jokes":["I design the holidays; our drivers make them work — a perfect team, as long as I don’t touch the steering wheel.","If anything goes wrong, it was *definitely* part of the itinerary…"],"closers":["Sit back, relax and enjoy the journey — and thanks for choosing Johnsons.","Have a wonderful holiday, and thank you for travelling with Johnsons Coaches!"]},"Cheeky":{"openings":["Morning! I’m Robbie, your friendly Product Manager — I plan the holidays; you do the relaxing.","Hello team! Robbie here — I make the spreadsheets so you can make the memories."],"jokes":["If you enjoy this tour, please tell everyone. If not… tell my manager it was the driver’s idea.","I promise today’s mileage has been pre‑approved by your knees."],"closers":["Have a cracking time — let’s make some stories to brag about when we get home!","Right — kettle’s off, seat belts on, and away we go."]},"Comedy":{"openings":["Good morning! Robbie here — Product Manager, part‑time microphone hijacker.","Hi all! I’m Robbie — the chap who designs the holidays and hopes you don’t cancel them."],"jokes":["Today’s destination is so photogenic even your phone’s ‘portrait mode’ gets nervous.","We operate a strict ‘no arguing with sat‑nav’ policy — mainly for my sake."],"closers":["If you see something amazing, it was my idea; if it rains, that was the driver.","Enjoy every minute — and remember, calories consumed on holiday do not count."]},"Short":{"openings":["Morning! Robbie, Product Manager at Johnsons.","Hello! Robbie here from Johnsons Coaches."],"jokes":["",""],"closers":["Have a great trip and enjoy the views!","You’re in safe hands today — have a brilliant break."]},"Friendly":{"openings":["Good morning! I’m Robbie, the Product Manager — lovely to welcome both new and familiar faces.","Hello everyone! Robbie here — it’s a pleasure to send you off today."],"jokes":["I sometimes test these holidays myself — purely for research, of course.","Our coaches have extra legroom; my speeches do not — I’ll keep this brief."],"closers":["Thanks for travelling with Johnsons — we’re delighted to have you with us.","Wishing you a relaxing, memorable holiday."]},"Punny":{"openings":["Hi folks! Robbie here — Product Manager and part‑time pun enthusiast.","Hello! Robbie from Johnsons — let’s set a great tone before we set off."],"jokes":["Today’s trip will be un‑*coach*‑ionably good.","If you’re not a fan of puns, don’t worry — I’m running out of *fuel* for them."],"closers":["Time to *depart* with style — enjoy!","We hope today’s journey really *transports* you."]},"Local Guide":{"openings":["Morning! Robbie here — Product Manager. I’ve packed this route with scenic highlights.","Hello everyone! Robbie — Johnsons Product Manager — wishing you a fantastic discovery of today’s region."],"jokes":["I’ve personally checked the breakfast quality at several places… for science.","Remember: photos first, social media later — enjoy the moment!"],"closers":["Have a superb time exploring — and don’t forget your camera.","Enjoy the journey and the stories you’ll collect along the way."]},"Dry British":{"openings":["Morning all. Robbie here, Product Manager — yes, it is a bit early, isn’t it.","Hello. I’m Robbie, the Product Manager — let’s keep expectations high and traffic low."],"jokes":["Weather forecast today: pleasantly British.","We’re aiming for ‘smooth and scenic’; if we achieve ‘on time’, I’ll take that."],"closers":["Right then — seats, belts, smiles. Off we go.","Have a marvellous holiday. I’ll stop talking now."]}};
+
+const TONE_KEYS = Object.keys(TONES);
+const byId = id => document.getElementById(id);
+const choice = arr => arr[Math.floor(Math.random()*arr.length)];
+const shuffle = arr => arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+
+function buildDestinationSelect(){
+  const sel = byId('destination');
+  sel.innerHTML = '';
+  const keys = Object.keys(DESTINATIONS).sort((a,b)=>a.localeCompare(b));
+  for(const k of keys){
+    const opt = document.createElement('option');
+    opt.value = k; opt.textContent = k; sel.appendChild(opt);
+  }
+  const updateHint=()=>{ const d = DESTINATIONS[sel.value]; byId('nicknameHint').textContent = d?.nickname?`Nickname: ${d.nickname}`:''; };
+  sel.addEventListener('change', updateHint);
+  updateHint();
+}
+
+function buildToneChips(){
+  const wrap = byId('tones'); wrap.innerHTML='';
+  TONE_KEYS.forEach(t=>{
+    const chip = document.createElement('span');
+    chip.className = 'tone-chip'; chip.textContent = t; chip.dataset.tone = t;
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('.tone-chip').forEach(el=>el.classList.remove('active'));
+      chip.classList.add('active');
+    });
+    wrap.appendChild(chip);
+  });
+  wrap.querySelector('.tone-chip').classList.add('active');
+}
+
+function makeSpeech({toneKey,destination,driver,courier,custom,factsCount,includeRole}){
+  const tone = TONES[toneKey];
+  const dest = DESTINATIONS[destination];
+  const facts = shuffle(dest.facts).slice(0,factsCount);
+  const roleLine = includeRole === 'yes' ? ' I’m the Product Manager here at Johnsons Coaches.' : '';
+  const open = choice(tone.openings).replace("I’m Robbie", `I’m Robbie${roleLine ? '' : ''}`);
+  const funFactIntro = factsCount>1 ? 'Here are a couple of fun bits for you:' : 'Here’s a quick fun fact:';
+  const factsText = factsCount>1 ? facts.map(f=>`• ${f}`).join('
+') : facts[0];
+  const driverCourier = (driver||courier) ? `You’re in safe hands today with your driver ${driver||'[Driver]'}${courier?` and your courier ${courier}`:''}.` : `You’re in very safe hands today with your driver and courier.`;
+  const joke = tone.jokes.filter(Boolean).length? ' '+choice(tone.jokes): '';
+  const close = choice(tone.closers);
+  const intro = `Today you’re heading to ${destination}${dest.nickname?`, ${dest.nickname}`:''}.`;
+  const customLine = custom ? `
+${custom}` : '';
+  const body = [intro, funFactIntro, factsText, driverCourier].join('
+
+');
+  return `${open}
+
+${body}${joke}${customLine}
+
+${close}`.replace(/
+{3,}/g,'
+
+');
+}
+
+function renderSpeeches(speeches){
+  const wrap = byId('speeches'); wrap.innerHTML='';
+  speeches.forEach(txt=>{
+    const card = document.createElement('div'); card.className='speech';
+    const pre = document.createElement('pre'); pre.textContent='"'+txt+'"'; card.appendChild(pre);
+    const actions = document.createElement('div'); actions.className='actions';
+    const copyBtn = document.createElement('button'); copyBtn.className='btn secondary'; copyBtn.textContent='Copy';
+    copyBtn.addEventListener('click', async ()=>{ await navigator.clipboard.writeText(pre.textContent.replace(/^"|"$/g,'')); copyBtn.textContent='Copied!'; setTimeout(()=>copyBtn.textContent='Copy',1000); });
+    const shorterBtn = document.createElement('button'); shorterBtn.className='btn ghost'; shorterBtn.textContent='Shorten';
+    shorterBtn.addEventListener('click',()=>{
+      const paras = pre.textContent.split('
+
+').filter(Boolean);
+      const keep = [paras[0]]; const factsIdx = paras.findIndex(p=>p.includes('fun fact')||p.includes('fun bits'));
+      if(factsIdx!==-1){ keep.push(paras[factsIdx]); if(paras[factsIdx+1]) keep.push(paras[factsIdx+1]); }
+      if(paras.at(-1)) keep.push(paras.at(-1)); pre.textContent = keep.join('
+
+');
+    });
+    actions.appendChild(copyBtn); actions.appendChild(shorterBtn); card.appendChild(actions); wrap.appendChild(card);
+  });
+}
+
+function generate({shuffleFactsOnly=false}){
+  const destination = byId('destination').value;
+  const driver = byId('driver').value.trim();
+  const courier = byId('courier').value.trim();
+  const count = Math.max(1, Math.min(10, parseInt(byId('count').value||6)));
+  const factsCount = parseInt(byId('factsCount').value||1);
+  const includeRole = byId('includeRole').value;
+  const custom = byId('custom').value.trim();
+  const activeTone = document.querySelector('.tone-chip.active')?.dataset.tone || 'Warm';
+  let speeches = [];
+  for(let i=0;i<count;i++){
+    const toneKey = shuffleFactsOnly ? activeTone : choice(TONE_KEYS);
+    speeches.push(makeSpeech({toneKey,destination,driver,courier,custom,factsCount,includeRole}));
+  }
+  renderSpeeches(speeches);
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  buildDestinationSelect(); buildToneChips();
+  byId('generate').addEventListener('click',()=>generate({shuffleFactsOnly:false}));
+  byId('shuffle').addEventListener('click',()=>generate({shuffleFactsOnly:true}));
+  byId('printAll').addEventListener('click',()=>window.print());
+  generate({shuffleFactsOnly:false});
+});
+</script>
+</body>
+</html>
